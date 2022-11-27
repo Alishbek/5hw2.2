@@ -1,16 +1,22 @@
 package com.example.a5hw22
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Binder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.a5hw22.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     lateinit var binding: ActivityMainBinding
@@ -18,10 +24,18 @@ class MainActivity : AppCompatActivity() {
     lateinit var secondName: String
     lateinit var percentage: String
     lateinit var result: String
+
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val isShow: Boolean = sharedPreferences.getBoolean("isShow", true)
+        if (isShow) {
+            onBoard()
+        }
         binding.btnCalculate.setOnClickListener {
             getRequest()
         }
@@ -57,6 +71,12 @@ class MainActivity : AppCompatActivity() {
                 result = it.result
                 secondActivity()
             })
+    }
+
+    fun onBoard() {
+        val intent = Intent(this, OnBoard::class.java)
+        startActivity(intent)
+        sharedPreferences.edit().putBoolean("isShow", false).apply()
     }
 
     fun secondActivity() {
